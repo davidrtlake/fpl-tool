@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import {
   AppBar,
   Box,
@@ -13,21 +13,44 @@ import {
   Typography
 } from "@mui/material"
 import { Menu as MenuIcon, Home, Settings } from "@mui/icons-material"
-import ManagerList from "./components/parts/managerList"
+import LeagueStandings from "./components/parts/LeagueStandings"
+import PicksLayout from "./components/layouts/PicksLayout"
+import { useStores } from "./stores/StoresProvider"
+import { observer } from "mobx-react-lite"
 
 const DRAWER_WIDTH = 360
 
-export default function App() {
+const App = observer(function App() {
   const [mobileOpen, setMobileOpen] = React.useState(false)
+  const [currEntryId, setCurrEntryId] = React.useState<number | null>(null)
+  const [currEventId, setCurrEventId] = React.useState<number | null>(null)
+  // Use stores here and pass to manager list?
+  const { leagueStandingsStore, entriesPicksStore } = useStores()
 
   const handleDrawerToggle = () => setMobileOpen((prev) => !prev)
+
+  const handleSelectEntry = async (entryId: number, eventId: number) => {
+    await entriesPicksStore.loadEntryPicks(entryId, eventId)
+
+    setCurrEntryId(entryId)
+    setCurrEventId(eventId)
+  }
+
+  useEffect(() => {
+    leagueStandingsStore.load(1190630)
+    entriesPicksStore
+
+    return () => {
+      leagueStandingsStore.abort()
+    }
+  }, [leagueStandingsStore])
 
   const drawerContent = (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <Toolbar sx={{ px: 2 }}>
-        <Typography variant="h6" noWrap>
-          Your App
-        </Typography>
+        {/* <Typography variant="h6" noWrap>
+          FPL Tool
+        </Typography> */}
       </Toolbar>
 
       <Divider />
@@ -48,7 +71,12 @@ export default function App() {
         </ListItemButton>
       </List>
 
-      <ManagerList />
+      <LeagueStandings
+        leagueStandings={leagueStandingsStore.managers}
+        loading={leagueStandingsStore.loading}
+        error={leagueStandingsStore.error}
+        handleSelectEntry={handleSelectEntry}
+      />
 
       <Divider />
 
@@ -82,7 +110,7 @@ export default function App() {
           </IconButton>
 
           <Typography variant="h6" component="div" sx={{ flex: 1 }}>
-            Page Title
+            FPL Tool
           </Typography>
         </Toolbar>
       </AppBar>
@@ -146,8 +174,17 @@ export default function App() {
           <Typography color="text.secondary">
             This space is for your pages. It scrolls independently of the header and sidebar.
           </Typography>
+          {currEntryId && currEventId && (
+            <PicksLayout
+              entryPicks={entriesPicksStore.getEntryPicks(currEntryId, currEventId)}
+              loading={entriesPicksStore.loading}
+              error={entriesPicksStore.error}
+            />
+          )}
         </Box>
       </Box>
     </Box>
   )
-}
+})
+
+export default App
