@@ -1,9 +1,10 @@
 import { makeAutoObservable, runInAction } from "mobx"
-import { fetchLeagueStandings } from "../api/fetch.api"
-import type { LeagueStandingsResponse } from "../models"
+
+import { fetchEventStatus, fetchLeagueStandings } from "../api/fpl.api"
+import type { LeagueStandingsStoreData } from "../models"
 
 export class LeagueStandingsStore {
-  data: LeagueStandingsResponse | null = null
+  data: LeagueStandingsStoreData | null = null
   loading = false
   error: Error | null = null
 
@@ -26,19 +27,21 @@ export class LeagueStandingsStore {
     this.controller = new AbortController()
 
     try {
-      const data = await fetchLeagueStandings(leagueId, this.controller.signal)
+      const leagueStandingsData = await fetchLeagueStandings(leagueId, this.controller.signal)
+      const eventStatusData = await fetchEventStatus(this.controller.signal)
       runInAction(() => {
-        this.data = data
+        this.data = {
+          leagueStandings: leagueStandingsData,
+          eventStatus: eventStatusData
+        }
         this.loading = false
       })
     } catch (e) {
-      const err = e as any
-
-      if (err?.name == "AbortError") return
+      if (e instanceof DOMException && e.name === "AbortError") return
 
       runInAction(() => {
         this.data = null
-        this.error = err instanceof Error ? err : new Error(String(err))
+        this.error = e instanceof Error ? e : new Error(String(e))
         this.loading = false
       })
     }
@@ -50,6 +53,14 @@ export class LeagueStandingsStore {
   }
 
   get managers() {
-    return this.data?.standings.results ?? []
+    return this.data?.leagueStandings.standings.results ?? []
+  }
+
+  get currentWeek() {
+    return (
+      this.data?.eventStatus.status.reduce((acc, val) => {
+        return Math.max(acc, val.event)
+      }, 1) ?? 1
+    )
   }
 }

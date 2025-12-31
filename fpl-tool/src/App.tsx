@@ -1,22 +1,11 @@
-import React, { useEffect } from "react"
-import {
-  AppBar,
-  Box,
-  Divider,
-  Drawer,
-  IconButton,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Toolbar,
-  Typography
-} from "@mui/material"
-import { Menu as MenuIcon, Home, Settings } from "@mui/icons-material"
-import LeagueStandings from "./components/parts/LeagueStandings"
-import PicksLayout from "./components/layouts/PicksLayout"
-import { useStores } from "./stores/StoresProvider"
+import { Menu as MenuIcon } from "@mui/icons-material"
+import { AppBar, Box, Divider, Drawer, IconButton, Toolbar, Typography } from "@mui/material"
 import { observer } from "mobx-react-lite"
+import React, { useEffect } from "react"
+
+import PicksLayout from "./components/layouts/PicksLayout"
+import LeagueStandings from "./components/parts/LeagueStandings"
+import { useStores } from "./contexts/StoresContext"
 
 const DRAWER_WIDTH = 360
 
@@ -38,38 +27,26 @@ const App = observer(function App() {
 
   useEffect(() => {
     leagueStandingsStore.load(1190630)
-    entriesPicksStore
 
     return () => {
       leagueStandingsStore.abort()
     }
   }, [leagueStandingsStore])
 
+  // useEffect(() => {
+  //   entriesPicksStore.load(
+  //     leagueStandingsStore.managers.map((it) => it.entry),
+  //     leagueStandingsStore.currentWeek
+  //   )
+
+  //   return () => {
+  //     entriesPicksStore.abort()
+  //   }
+  // }, [leagueStandingsStore.managers])
+
   const drawerContent = (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <Toolbar sx={{ px: 2 }}>
-        {/* <Typography variant="h6" noWrap>
-          FPL Tool
-        </Typography> */}
-      </Toolbar>
-
-      <Divider />
-
-      <List sx={{ flex: 1, py: 1 }}>
-        <ListItemButton>
-          <ListItemIcon>
-            <Home />
-          </ListItemIcon>
-          <ListItemText primary="Home" />
-        </ListItemButton>
-
-        <ListItemButton>
-          <ListItemIcon>
-            <Settings />
-          </ListItemIcon>
-          <ListItemText primary="Settings" />
-        </ListItemButton>
-      </List>
+      <Toolbar sx={{ px: 2 }} />
 
       <LeagueStandings
         leagueStandings={leagueStandingsStore.managers}
@@ -170,9 +147,6 @@ const App = observer(function App() {
           {/* Replace with routes/pages */}
           <Typography variant="h4" sx={{ mb: 1 }}>
             Content Area
-          </Typography>
-          <Typography color="text.secondary">
-            This space is for your pages. It scrolls independently of the header and sidebar.
           </Typography>
           {currEntryId && currEventId && (
             <PicksLayout

@@ -1,4 +1,5 @@
 import { z } from "zod"
+
 import { PicksResponseSchema } from "./responses/picksResponse"
 
 export type EntriesPicks = z.infer<typeof EntriesPicksSchema>

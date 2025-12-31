@@ -1,12 +1,8 @@
-import React, { createContext, useContext } from "react"
-import { rootStore, type RootStore } from "./rootStore"
+import React from "react"
 
-const StoresContext = createContext<RootStore>(rootStore)
+import { StoresContext } from "../contexts/StoresContext"
+import { rootStore } from "./rootStore"
 
 export function StoresProvider({ children }: { children: React.ReactNode }) {
   return <StoresContext.Provider value={rootStore}>{children}</StoresContext.Provider>
-}
-
-export function useStores() {
-  return useContext(StoresContext)
 }

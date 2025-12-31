@@ -1,5 +1,5 @@
+import { createTheme, CssBaseline, ThemeProvider } from "@mui/material"
 import React from "react"
-import { CssBaseline, ThemeProvider, createTheme } from "@mui/material"
 
 const theme = createTheme({
   palette: {

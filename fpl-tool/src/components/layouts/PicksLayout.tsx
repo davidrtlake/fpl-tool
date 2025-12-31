@@ -1,5 +1,6 @@
-import { observer } from "mobx-react-lite"
 import { Box, Divider, List, ListItemButton, ListItemText, Toolbar, Typography } from "@mui/material"
+import { observer } from "mobx-react-lite"
+
 import type { PicksResponse } from "../../models"
 
 type Props = {

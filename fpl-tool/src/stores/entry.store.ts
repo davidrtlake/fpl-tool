@@ -1,5 +1,6 @@
 import { makeAutoObservable, runInAction } from "mobx"
-import { fetchEntry } from "../api/fetch.api"
+
+import { fetchEntry } from "../api/fpl.api"
 import type { EntryResponse } from "../models"
 
 // Make store a dictionary of players IDs to their team?
@@ -33,13 +34,11 @@ export class EntryStore {
         this.loading = false
       })
     } catch (e) {
-      const err = e as any
-
-      if (err?.name == "AbortError") return
+      if (e instanceof DOMException && e.name === "AbortError") return
 
       runInAction(() => {
         this.data = null
-        this.error = err instanceof Error ? err : new Error(String(err))
+        this.error = e instanceof Error ? e : new Error(String(e))
         this.loading = false
       })
     }
