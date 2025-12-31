@@ -9,6 +9,8 @@ import { useStores } from "./contexts/StoresContext"
 
 const DRAWER_WIDTH = 360
 
+// Think about the app state
+// Selected teams and where they are in the layout.
 const App = observer(function App() {
   const [mobileOpen, setMobileOpen] = React.useState(false)
   const [currEntryId, setCurrEntryId] = React.useState<number | null>(null)

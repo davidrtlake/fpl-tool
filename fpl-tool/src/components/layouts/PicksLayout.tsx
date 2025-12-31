@@ -1,7 +1,8 @@
-import { Box, Divider, List, ListItemButton, ListItemText, Toolbar, Typography } from "@mui/material"
+import { Box, Divider, Grid, Toolbar, Typography } from "@mui/material"
 import { observer } from "mobx-react-lite"
 
-import type { PicksResponse } from "../../models"
+import type { PicksResponse, PlayerPick } from "../../models"
+import PlayerCard from "../parts/PlayerCard"
 
 type Props = {
   entryPicks: PicksResponse | null
@@ -28,6 +29,14 @@ const PicksLayout = observer(({ entryPicks, loading, error }: Props) => {
     )
   }
 
+  const mappedPlayers =
+    entryPicks?.picks.reduce((acc: Record<string, PlayerPick[]>, val) => {
+      const key = val.position > 11 ? "bench" : val.element_type.toString()
+      acc[key] = acc[key] ?? []
+      acc[key].push(val)
+      return acc
+    }, {}) ?? {}
+
   return (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <Toolbar sx={{ px: 2 }}>
@@ -38,13 +47,23 @@ const PicksLayout = observer(({ entryPicks, loading, error }: Props) => {
 
       <Divider />
 
-      <List sx={{ flex: 1, py: 1 }}>
-        {entryPicks?.picks.map((it) => (
-          <ListItemButton key={it.element}>
-            <ListItemText primary={it.element} />
-          </ListItemButton>
+      <Grid
+        container
+        direction="column"
+        spacing={2}
+        sx={{
+          justifyContent: "space-evenly",
+          alignItems: "center"
+        }}
+      >
+        {Object.keys(mappedPlayers).map((key) => (
+          <Grid container direction="row">
+            {mappedPlayers[key].map((it) => (
+              <PlayerCard element={it.element} isCaptain={it.is_captain} />
+            ))}
+          </Grid>
         ))}
-      </List>
+      </Grid>
     </Box>
   )
 })
